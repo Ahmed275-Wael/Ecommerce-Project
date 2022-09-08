@@ -1,44 +1,42 @@
-const mongoose = require('mongoose');
-const { toJSON } = require('./plugins');
+'use strict';
 const { tokenTypes } = require('../config/tokens');
 
-const tokenSchema = mongoose.Schema(
-  {
+
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Token extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      // this.belongsTo(models.User);
+    }
+  }
+  Token.init({
     token: {
-      type: String,
-      required: true,
-      index: true,
-    },
-    user: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: 'User',
-      required: true,
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     type: {
-      type: String,
-      enum: [tokenTypes.REFRESH, tokenTypes.RESET_PASSWORD, tokenTypes.VERIFY_EMAIL],
-      required: true,
+      type: DataTypes.ENUM([tokenTypes.REFRESH, tokenTypes.ACCESS]),
+      allowNull: false,
     },
     expires: {
-      type: Date,
-      required: true,
+      type: DataTypes.DATE,
+      allowNull: false,
     },
     blacklisted: {
-      type: Boolean,
-      default: false,
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-// add plugin that converts mongoose to json
-tokenSchema.plugin(toJSON);
-
-/**
- * @typedef Token
- */
-const Token = mongoose.model('Token', tokenSchema);
-
-module.exports = Token;
+  }, {
+    sequelize,
+    modelName: 'Token',
+  });
+  return Token;
+};
